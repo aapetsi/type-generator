@@ -1,0 +1,23 @@
+{
+  "name": "@apetsiampiah/type-generator",
+  "version": "1.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "type-generator": "./index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "graphql": "^16.11.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "22.3.0"
+  }
+}
