@@ -19,6 +19,16 @@ A simple CLI tool to generate GraphQL `ObjectType` definitions from Sequelize mo
 npm install -g @apetsiampiah/type-generator
 ```
 
+## 🔧 Optional Config File
+You can create a `.typegenrc.json` file in your project root to avoid repeating CLI flags:
+
+```json
+{
+  "modelFolder": "./src/database/models",
+  "typesFolder": "./src/schema/types"
+}
+```
+
 ## 🚀 Usage
 
 ```bash

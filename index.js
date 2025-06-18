@@ -23,6 +23,22 @@ function generateGraphQLFieldCode(fields) {
   )
 }
 
+function loadConfig() {
+  const configPaths = [
+    path.resolve(process.cwd(), '.typegenrc'),
+    path.resolve(process.cwd(), '.typegenrc.json')
+  ]
+
+  for (const configPath of configPaths) {
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+      return config
+    }
+  }
+
+  return {}
+}
+
 program
   .name('type-generator')
   .description('CLI to generate graphql types from a sequelize model')
@@ -46,7 +62,10 @@ program
     'Folder containing the type definitions'
   )
   .action((options) => {
-    const { model, modelFolder, typesFolder } = options
+    const config = loadConfig()
+    const modelFolder = options.modelFolder || config.modelFolder
+    const typesFolder = options.typesFolder || config.typesFolder
+    const { model } = options
 
     if (!model) {
       console.error('Error: --model option is required')
@@ -54,7 +73,7 @@ program
     }
 
     if (!modelFolder) {
-      console.error('Error: --model-folder option is required')
+      console.error('Error: --model-folder option is required (either via flag or .typegenrc)')
       process.exit(1)
     }
 
