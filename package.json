@@ -13,8 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "commander": "^14.0.0",
-    "graphql": "^16.11.0"
+    "commander": "^14.0.0"
   },
   "devDependencies": {},
   "engines": {
