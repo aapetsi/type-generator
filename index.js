@@ -43,22 +43,26 @@ function loadConfig() {
   return {}
 }
 
+function capitalize(text) {
+  return text.split('_').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join('')
+}
+
 function generateTypes(modelFile, modelFolder, defaultTypesFolder) {
-  const typeName = `${
-    modelFile.charAt(0).toUpperCase() + modelFile.slice(1)
-  }Type`
+  const typeName = `${capitalize(modelFile)}Type`
 
   console.log(
-    `🚧 Generating GraphQL object type for model: ${modelFile.toUpperCase()} in folder: ${defaultTypesFolder}/`
+    `🚧 Generating GraphQL object type for model: ${capitalize(modelFile)} in folder: ${defaultTypesFolder}/`
   )
 
   const graphqlFields = {}
+  const graphqlImports = new Set()
 
   const modelInstance = require(`${path.resolve(modelFolder, modelFile)}`)
   const attributes = modelInstance.rawAttributes
 
   for (const [key, value] of Object.entries(attributes)) {
     const graphqlType = GRAPHQL_TYPE_MAPPING[value.type.key]
+    graphqlImports.add(graphqlType)
     graphqlFields[key] = {
       type: graphqlType,
       description: value.comment || ''
@@ -66,10 +70,12 @@ function generateTypes(modelFile, modelFolder, defaultTypesFolder) {
   }
 
   // create a file in the types folder with the name <model>Type.js
-  const typeFilePath = path.join(defaultTypesFolder, `${modelFile}Type.js`)
+  const typeFilePath = path.join(defaultTypesFolder, `${capitalize(modelFile)}Type.js`)
   const fieldCode = generateGraphQLFieldCode(graphqlFields)
   const typeFileContent = `
-    const { GraphQLObjectType, GraphQLInt, GraphQLBoolean, GraphQLString } = require('graphql')
+    const { GraphQLObjectType, ${[...graphqlImports].join(
+      ', '
+    )} } = require('graphql')
 
     const ${typeName} = new GraphQLObjectType({
       name: '${typeName}',
@@ -137,7 +143,6 @@ program
         .map((file) => file.replace('.js', ''))
 
       models.forEach((modelFile) => {
-        console.log('model file is ====>', modelFile)
         generateTypes(modelFile, modelFolder, defaultTypesFolder)
       })
     } else {
