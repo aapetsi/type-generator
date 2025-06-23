@@ -1,6 +1,6 @@
-[] When underscores are used, convert the name to camelCase or give an option in the settings on how to handle it
-[] Detect and use GraphQLID for id fields
-[] Only include Graphql types that are used
+[x] When underscores are used, convert the name to camelCase or give an option in the settings on how to handle it
+[x] Detect and use GraphQLID for id fields
+[x] Only include Graphql types that are used
 [] Option to generate the Input types for the model
-[] Use the allowNull field on the model to indicate when to use GraphQLNonNull
+[x] Use the allowNull field on the model to indicate when to use GraphQLNonNull
 [] TODO: Of course, then generating queries and mutations

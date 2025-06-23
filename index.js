@@ -44,14 +44,19 @@ function loadConfig() {
 }
 
 function capitalize(text) {
-  return text.split('_').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join('')
+  return text
+    .split('_')
+    .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+    .join('')
 }
 
 function generateTypes(modelFile, modelFolder, defaultTypesFolder) {
   const typeName = `${capitalize(modelFile)}Type`
 
   console.log(
-    `🚧 Generating GraphQL object type for model: ${capitalize(modelFile)} in folder: ${defaultTypesFolder}/`
+    `🚧 Generating GraphQL object type for model: ${capitalize(
+      modelFile
+    )} in folder: ${defaultTypesFolder}/`
   )
 
   const graphqlFields = {}
@@ -62,15 +67,25 @@ function generateTypes(modelFile, modelFolder, defaultTypesFolder) {
 
   for (const [key, value] of Object.entries(attributes)) {
     const graphqlType = GRAPHQL_TYPE_MAPPING[value.type.key]
+    const isIdField = key === 'id' || key.match(/_id/)
+    const actualType = isIdField ? 'GraphQLID' : graphqlType
     graphqlImports.add(graphqlType)
+    value.allowNull == false && graphqlImports.add('GraphQLNonNull')
+    isIdField && graphqlImports.add('GraphQLID')
     graphqlFields[key] = {
-      type: graphqlType,
+      type:
+        value.allowNull == false
+          ? `new GraphQLNonNull(${actualType})`
+          : actualType,
       description: value.comment || ''
     }
   }
 
   // create a file in the types folder with the name <model>Type.js
-  const typeFilePath = path.join(defaultTypesFolder, `${capitalize(modelFile)}Type.js`)
+  const typeFilePath = path.join(
+    defaultTypesFolder,
+    `${capitalize(modelFile)}Type.js`
+  )
   const fieldCode = generateGraphQLFieldCode(graphqlFields)
   const typeFileContent = `
     const { GraphQLObjectType, ${[...graphqlImports].join(
@@ -148,40 +163,6 @@ program
     } else {
       generateTypes(model, modelFolder, defaultTypesFolder)
     }
-
-    // const typeName = `${model.charAt(0).toUpperCase() + model.slice(1)}Type` // capitalize the model name
-    // console.log(
-    //   `Generating GraphQL object type for model: ${model.toUpperCase()} in folder: ${defaultTypesFolder}/`
-    // )
-
-    // const graphqlFields = {}
-
-    // const attributes = modelInstance.rawAttributes
-
-    // for (const [key, value] of Object.entries(attributes)) {
-    //   const graphqlType = GRAPHQL_TYPE_MAPPING[value.type.key]
-    //   graphqlFields[key] = {
-    //     type: graphqlType,
-    //     description: value.comment || ''
-    //   }
-    // }
-
-    // create a file in the types folder with the name <model>Type.js
-    // const typeFilePath = path.join(defaultTypesFolder, `${model}Type.js`)
-    // const fieldCode = generateGraphQLFieldCode(graphqlFields)
-    // const typeFileContent = `
-    //   const { GraphQLObjectType, GraphQLInt, GraphQLBoolean, GraphQLString } = require('graphql')
-
-    //   const ${typeName} = new GraphQLObjectType({
-    //     name: '${typeName}',
-    //     fields: () => (${fieldCode})
-    //   });
-
-    //   module.exports = ${typeName};
-    // `
-    // check if the typeFilePath already exists
-    // if it exists prompt the user if the want to overwrite it or skip it
-    // fs.writeFileSync(typeFilePath, typeFileContent)
   })
 
 program.parse()
